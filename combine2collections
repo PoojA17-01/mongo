@@ -1,3 +1,5 @@
+from different dbs
+
 use mytry1
 var db2 = connect('localhost:27017/mytry')
 db.sample1.find().forEach(function(p) { db2.sample1.insert(p); });
@@ -200,18 +202,6 @@ var finalizeFunction2 = function (key, values) {
 
 db.sample.mapReduce(map, reduce,{out:{reduce:"joined"},finalize: finalizeFunction2});
 db.sample1.mapReduce(map1, reduce,{out:{merge:"joined"},finalize: finalizeFunction2});
-
-
-db.orders.mapReduce( mapFunction2,
-                     reduceFunction2,
-                     {
-                       out: { merge: "map_reduce_example" },
-                       query: { ord_date:
-                                  { $gt: new Date('01/01/2012') }
-                              },
-                       finalize: finalizeFunction2
-                     }
-                   )
 
 
 
