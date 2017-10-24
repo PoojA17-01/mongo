@@ -1,0 +1,218 @@
+use mytry1
+var db2 = connect('localhost:27017/mytry')
+db.sample1.find().forEach(function(p) { db2.sample1.insert(p); });
+
+
+
+map=function(){
+emit(this.city,this.additionalSkill);
+}
+
+map1=function(){
+emit(this.city,this.additionalSkill);
+}
+
+reduce=function(key,values){
+	var result={additionalSkill:{}};
+	result.additionalSkill=values.additionalSkill;
+	return result;
+}
+
+res=db.sample.mapReduce(map,reduce,{out:{reduce:'joined'}})
+var db2 = connect('localhost:27017/mytry1')
+res1=db2.sample1.mapReduce(map1,reduce,{out:{reduce:'joined'}})
+.......................................................................
+
+
+var map = function(){
+		var value = {
+                                         additionalSkill:  this.additionalSkill ,
+                                         ml_name: ""
+                                       };
+                emit(this.city, value);
+}
+
+var map1 = function(){
+		var value = {
+                                         additionalSkill:  this.additionalSkill ,
+                                         ml_name: ""
+                                       };
+                emit(this.city, value);
+}
+
+var reduce=function(key, values) {
+      
+        var res = {"ml_name": "","additionalSkill":[],"cnt":0};
+	var cnt=0;
+	res.ml_name=values.ml_name;
+        for(var i=0;i<values.length;i++)
+        {
+	 cnt=0; 
+         for(var j=0;j<values[i].additionalSkill.length;j++){
+		         
+				res.additionalSkill.push(values[i].additionalSkill[j])
+        }}
+	return res;
+    }
+
+
+res=db.sample.mapReduce(map,reduce,{out:{reduce:'joined'}})
+res1=db.sample1.mapReduce(map1,reduce,{out:{merge:'joined'}})
+..................................................................................................
+
+map=function(){
+emit(this.city,this.additionalSkill);
+}
+
+map1=function(){
+emit(this.city,this.additionalSkill);
+}
+
+reduce=function(key,values){
+	var result={additionalSkill:{}};
+	result.additionalSkill=values.additionalSkill;
+	return result;
+}
+
+res=db.sample.mapReduce(map,reduce,{out:{reduce:'joined'}})
+var db2 = connect('localhost:27017/mytry1')
+res1=db2.sample1.mapReduce(map1,reduce,{out:{reduce:'joined'}})
+.......................................................................
+
+
+var map = function(){
+		var value = {
+                                         additionalSkill:  this.additionalSkill 
+                                         };
+                emit(this.city, value);
+}
+
+var map1 = function(){
+		var value = {
+                                         additionalSkill:  this.additionalSkill 
+                                         
+                                       };
+                emit(this.city, value);
+}
+
+var reduce=function(key, values) {
+      
+        var res = {"additionalSkill":[],"cnt":0};
+	var cnt=0;
+	values.forEach(function(value) {
+	res.additionalSkill=value.additionalSkill;
+	
+	});
+	return res;
+    }
+res=db.sample.mapReduce(map,reduce,{out:{reduce:'joined'}})
+res1=db.sample1.mapReduce(map1,reduce,{out:{reduce:'joined'}})
+
+*********************************************************************************
+
+var map = function(){
+		var value = {
+                                         additionalSkill:  this.additionalSkill 
+                                         };
+                emit(this.city, value);
+}
+
+var map1 = function(){
+		var value = {
+                                         additionalSkill:  this.additionalSkill 
+                                         
+                                       };
+                emit(this.city, value);
+}
+
+var reduce=function(key, values) {
+      
+        var res = {"additionalSkill":[]};
+	values.forEach(function(value) {
+	res.additionalSkill=value.additionalSkill;
+	
+	});
+	return res;
+    }
+res=db.sample.mapReduce(map,reduce,{out:{reduce:'joined'}})
+res1=db.sample1.mapReduce(map1,reduce,{out:{reduce:'joined'}})
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+var map = function(){
+		var value = {
+                                         additionalSkill:  this.additionalSkill ,
+                                         ml_name: ""
+                                       };
+                emit(this.city, value);
+}
+var map1 = function(){
+		var value = {
+                                         additionalSkill:  this.additionalSkill ,
+                                         ml_name: ""
+                                       };
+                emit(this.city, value);
+}
+var reduce=function(key, values) {
+      
+        var res = {"ml_name": "","additionalSkill":[],"cnt":0};
+	var cnt=0;
+	res.ml_name=values.ml_name;
+        for(var i=0;i<values.length;i++)
+        {
+	 cnt=0; 
+         for(var j=0;j<values[i].additionalSkill.length;j++){
+		         
+				res.additionalSkill.push(values[i].additionalSkill[j])
+        }}
+	return res;
+    }
+
+
+var finalizeFunction2 = function (key, values) {
+		var ret={"additionalSkill":[]}
+		var res={"additionalSkill":[]}
+		var count=1;
+		var map = new Object();
+		var res={"additionalSkill":map}
+			ret.additionalSkill=values.additionalSkill.sort();
+			for(var i=0;i<ret.additionalSkill.length;i++)
+			{
+				for(var j=i+1;j<ret.additionalSkill.length;j++)
+				{
+					var k=ret.additionalSkill[i];
+					if(k==ret.additionalSkill[j])
+					{
+						++count;
+					}
+					else
+					{
+						i=i+count-1;
+						j=ret.additionalSkill.length;
+					}
+				}
+				map[ret.additionalSkill[i]]=count;
+				
+			}
+
+		return res;
+                    };
+
+db.sample.mapReduce(map, reduce,{out:{reduce:"joined"},finalize: finalizeFunction2});
+db.sample1.mapReduce(map1, reduce,{out:{merge:"joined"},finalize: finalizeFunction2});
+
+
+db.orders.mapReduce( mapFunction2,
+                     reduceFunction2,
+                     {
+                       out: { merge: "map_reduce_example" },
+                       query: { ord_date:
+                                  { $gt: new Date('01/01/2012') }
+                              },
+                       finalize: finalizeFunction2
+                     }
+                   )
+
+
+
+
